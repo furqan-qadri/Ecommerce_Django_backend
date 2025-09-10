@@ -1,0 +1,5 @@
+/storefront/bin
+/storefront/__pycache__
+/storefront/lib
+/storefront/include
+*__pycache__
