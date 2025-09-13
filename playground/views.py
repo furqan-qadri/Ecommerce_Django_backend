@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.db.models import Q,F
-from store.models import Product
+from django.db.models import Q,F, Value
+from store.models import Product, Customer
 
 # Create your views here.
 
@@ -30,7 +30,13 @@ def say_hello(request):
     # products=Product.objects.select_related('collection').all()
     #  products=Product.objects.select_related('collection').all()
     #  can also combine both since both return a queryset
-    products=Product.objects.select_related('collection').prefetch_related('promotions')
+    # products=Product.objects.select_related('collection').prefetch_related('promotions')
     
     
-    return render(request, 'hello.html', {'name':"Furqan", 'products': list(products)})
+    #aggregate fields
+    # query_set=Customer.objects.annotate(is_new=Value(True))
+    
+    #setting new id= old id+1
+    query_set=Customer.objects.annotate(new_id=F('id')+1)
+    
+    return render(request, 'hello.html', {'name':"Furqan", 'customers': query_set})
