@@ -1,4 +1,8 @@
+from urllib.parse import urlencode
 from django.contrib import admin
+from django.db.models.aggregates import Count
+from django.urls import reverse
+from django.utils.html import format_html
 from . import models
 # Register your models here.
 
@@ -26,6 +30,8 @@ class CustomerAdmin(admin.ModelAdmin):
     list_editable=['membership']
     ordering=['first_name','last_name']
     list_per_page=10
+    search_fields=['first_name__istartswith', 'last_name__startswith']
+    
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display=['payment_status', 'placed_at', 'customer_full_name']
@@ -37,5 +43,17 @@ class OrderAdmin(admin.ModelAdmin):
         return f"{order.customer.first_name} {order.customer.last_name}"
 
 
-admin.site.register(models.Collection)
-
+@admin.register(models.Collection)
+class CollectionsAdmin(admin.ModelAdmin):
+    list_display=['title','featured_product', 'products_count']
+    @admin.display(ordering='products_count')
+    def products_count(self,collection):
+        url=(reverse('admin:store_product_changelist')+'?'+ urlencode({'collection__id': str(collection.id)}))
+        return format_html('<a href="{}">{}</a>', url, collection)
+        
+    #It's like saying "Count how many products are connected to this collection while getting this"
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(
+            products_count=Count('product')
+        )
+        
