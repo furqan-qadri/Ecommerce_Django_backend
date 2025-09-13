@@ -55,6 +55,8 @@ class Customer(models.Model):
     # class Meta:
     #     db_table="store_customers" #change the name of the table
     #     indexes=[models.Index(fields=['first_name','last_name'])] 
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
         
     
     
