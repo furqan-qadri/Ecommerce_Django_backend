@@ -16,6 +16,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter=['last_update', 'collection']
     #this line is needed to avoid multiple sql queries
     list_select_related=['collection']
+    autocomplete_fields=['collection']
     
     @admin.display(ordering='inventory')
     def inventory_status(self, product):
@@ -56,6 +57,7 @@ class OrderAdmin(admin.ModelAdmin):
 @admin.register(models.Collection)
 class CollectionsAdmin(admin.ModelAdmin):
     list_display=['title','featured_product', 'products_count']
+    search_fields=['title']
     @admin.display(ordering='products_count')
     def products_count(self,collection):
         url=(reverse('admin:store_product_changelist')+'?'+ urlencode({'collection__id': str(collection.id)}))
