@@ -9,9 +9,11 @@ from . import models
 #modifying the product admin page
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
+    actions=["clear_inventory"]
     list_display=['title','unit_price','inventory_status','collection_title']
     list_editable=['unit_price']
     list_per_page=10
+    list_filter=['last_update', 'collection']
     #this line is needed to avoid multiple sql queries
     list_select_related=['collection']
     
@@ -23,6 +25,14 @@ class ProductAdmin(admin.ModelAdmin):
     
     def collection_title(self,product):
         return product.collection.title
+    
+    @admin.action(description='Clear Inventory')
+    def clear_inventory(self,request, queryset):
+        updated_count=queryset.update(inventory=0)
+        self.message_user(
+            request,f'{updated_count} products successfully updated'
+        )
+        
 
 @admin.register(models.Customer)
 class CustomerAdmin(admin.ModelAdmin):
