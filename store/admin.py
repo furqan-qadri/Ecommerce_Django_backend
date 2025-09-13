@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models.aggregates import Count
 from . import models
 # Register your models here.
 
@@ -26,6 +27,7 @@ class CustomerAdmin(admin.ModelAdmin):
     list_editable=['membership']
     ordering=['first_name','last_name']
     list_per_page=10
+    
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display=['payment_status', 'placed_at', 'customer_full_name']
@@ -37,5 +39,16 @@ class OrderAdmin(admin.ModelAdmin):
         return f"{order.customer.first_name} {order.customer.last_name}"
 
 
-admin.site.register(models.Collection)
-
+@admin.register(models.Collection)
+class CollectionsAdmin(admin.ModelAdmin):
+    list_display=['title','featured_product', 'products_count']
+    
+    @admin.display(ordering='products_count')
+    def products_count(self,collection):
+        return collection.products_count
+    #It's like saying "Count how many products are connected to this collection while getting this"
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(
+            products_count=Count('product')
+        )
+        
